@@ -36,12 +36,7 @@ app.use(helmet());
 app.use(cors());
 app.use(flash());
 
-app.use(function(req,res,next){
-    res.locals.error = req.flash("error");
-    res.locals.success = req.flash("success");
-    res.locals.path = req.path;
-    next();
-});
+
 
 mongoose.connect("mongodb://localhost:27017/rentalapp", {useNewUrlParser:true, useUnifiedTopology: true});
 
@@ -201,6 +196,13 @@ app.use((err, req, res, next) => {
       res.status(401).json({"error" : err.name + ": " + err.message})
     }
   })
+
+app.use(function(req,res,next){
+    res.locals.error = req.flash("error");
+    res.locals.success = req.flash("success");
+    res.locals.path = req.path;
+    next();
+});
 
 
 app.listen(3000, 'localhost', () => {
