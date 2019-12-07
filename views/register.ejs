@@ -25,25 +25,22 @@
                 	<div class="login-page-content">
                 		<div class="login-form">
                 			<h3>Sign Up</h3>
-							<form action="index.html">
-								<div class="name">
-									<div class="row">
-										<div class="col-md-6">
-											<input type="text" placeholder="First Name">
-										</div>
-										<div class="col-md-6">
-											<input type="text" placeholder="Last Name">
-										</div>
-									</div>
+							<form action="/user/signup" method="POST">
+								<div class="username">
+									<input name="email" type="email" placeholder="Email">
 								</div>
 								<div class="username">
-									<input type="email" placeholder="Email">
+									<input name="username" type="text" placeholder="Username">
 								</div>
 								<div class="username">
-									<input type="text" placeholder="Username">
+									<select name="type" class='custom-select'>
+										<option selected>Choose user type</option>
+										<option value='1'>Owner</option>
+										<option value='2'>Renter</option>
+									</select>
 								</div>
 								<div class="password">
-									<input type="password" placeholder="Password">
+									<input name="password" type="password" placeholder="Password">
 								</div>
 								<div class="log-btn">
 									<button type="submit"><i class="fa fa-check-square"></i> Sign Up</button>

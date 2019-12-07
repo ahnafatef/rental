@@ -1,17 +1,21 @@
-import mongoose from 'mongoose'
-import crypto from 'crypto'
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+
+
 const UserSchema = new mongoose.Schema({
-  name: {
+  username: {
     type: String,
     trim: true,
-    required: 'Name is required'
+    required: 'username is required'
   },
   type: {
     // 0 = admin
     // 1 == owner
     // 2 == renter
     type: Number,
-    required: "user type must be defined"
+    required: "user type must be defined",
+    min: 1,
+    max: 2
   },
   cars: [{
     type: mongoose.Schema.Types.ObjectId,

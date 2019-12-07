@@ -13,10 +13,15 @@ const uploadsPath = path.join(process.cwd(), 'uploads');
 const upload = multer({dest: uploadsPath});
 const fs = require('fs');
 const im = require('imagemagick');
+const _ = require("lodash");
+
+
 
 // const resize = require('./resize.js');
 // const identify = require('./identify.js');
-const Car = require('./car.js').default;
+const userRoutes = require('./routes/user.routes.js');
+const authRoutes = require('./routes/auth.routes.js');
+const Car = require('./models/car.js');
 
 app.set("view engine", "ejs");
 
@@ -32,10 +37,13 @@ app.use(cors());
 
 mongoose.connect("mongodb://localhost:27017/rentalapp", {useNewUrlParser:true, useUnifiedTopology: true});
 
+app.use('/user', userRoutes);
+app.use('/auth', authRoutes);
+
+
 //==========================
 // home start
 app.get('/', function(req, res){
-    console.log(req.url);
     res.render("home");
 });
 //==========================
@@ -80,7 +88,7 @@ app.get('/contact', function(req,res){
 
 
 app.post('/register', function(req, res){
-
+    
 });
 
 
@@ -169,6 +177,10 @@ app.post('/addcar', upload.single('carimage'), (req, res) => {
 // catch all route start
 //=====================
 app.get('*', function(req, res){
+    res.render('404');
+});
+
+app.post('*', function(req, res){
     res.render('404');
 });
 // catch all end
