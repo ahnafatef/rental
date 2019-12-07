@@ -14,7 +14,7 @@ const upload = multer({dest: uploadsPath});
 const fs = require('fs');
 const im = require('imagemagick');
 const _ = require("lodash");
-
+const flash = require("connect-flash");
 
 
 // const resize = require('./resize.js');
@@ -34,6 +34,14 @@ app.use(compress());
 app.use(helmet());
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
+app.use(flash());
+
+app.use(function(req,res,next){
+    res.locals.error = req.flash("error");
+    res.locals.success = req.flash("success");
+    res.locals.path = req.path;
+    next();
+});
 
 mongoose.connect("mongodb://localhost:27017/rentalapp", {useNewUrlParser:true, useUnifiedTopology: true});
 
