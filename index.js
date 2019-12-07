@@ -14,15 +14,67 @@ const im = require('imagemagick');
 // const identify = require('./identify.js');
 const Car = require('./car.js').default;
 
+app.set("view engine", "ejs");
+
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.json());
+app.use(express.static(__dirname + "/public"));
+// app.use(cookieParser());
+// app.use(compress());
+// // secure apps by setting various HTTP headers
+// app.use(helmet());
+// // enable CORS - Cross Origin Resource Sharing
+// app.use(cors());
 
 mongoose.connect("mongodb://localhost:27017/rentalapp", {useNewUrlParser:true, useUnifiedTopology: true});
 
-app.get('/', (req, res) => {
-    res.send('hello');
+//==========================
+// home start
+app.get('/', function(req, res){
+    res.render("home");
 });
+//==========================
+// home end
 
+
+//==========================
+// about start
+app.get('/about', function(req,res){
+    res.render('about');
+});
+//==========================
+// about end
+
+
+//==========================
+// signup start
+app.get('/signup', function(req,res){
+    res.render('register');
+});
+//==========================
+// signup end
+
+
+//==========================
+// login start
+app.get('/login', function(req,res){
+    res.render('login');
+});
+//==========================
+// login end
+
+
+//==========================
+// contact start
+app.get('/contact', function(req,res){
+    res.render('contact');
+});
+//==========================
+// contact end
+
+
+// addcar route start
+//=================================
 app.post('/addcar', upload.single('carimage'), (req, res) => {
     
     let imgFilePath;
@@ -56,7 +108,7 @@ app.post('/addcar', upload.single('carimage'), (req, res) => {
                         if (err) console.log(err);
                         fs.unlink(imgFilePath, (err) => {
                             if (err) console.log(err);
-                        })
+                        });
                     });
                     car.save((err, data) => {
                         if(err){
@@ -99,6 +151,19 @@ app.post('/addcar', upload.single('carimage'), (req, res) => {
         });
     }
 });
+// addcar route end
+//=================================
+
+app.get('*', function(req, res){
+    res.render('404');
+});
+
+// Catch unauthorised errors
+app.use((err, req, res, next) => {
+    if (err.name === 'UnauthorizedError') {
+      res.status(401).json({"error" : err.name + ": " + err.message})
+    }
+  })
 
 app.listen(3000, 'localhost', () => {
     console.log('server started...');

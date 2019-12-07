@@ -1,0 +1,35 @@
+var express = require("express")
+var router = express.Router()
+   
+    //route to  Home page
+    router.get('/', function(req,res){
+    });
+    //route to  About page
+    router.get('/about', function(req,res){
+    });
+    //route to Gallery page
+    router.get('/gallery', function(req,res){
+    });
+    //route to login page page
+    router.get('/login', function(req,res){
+    });
+    //route to  Contact page
+    router.get('/contact', function(req,res){
+    });
+    //route to  specifiq car details page
+    router.get('/car_details/:id', function(req,res){
+    });
+    //route to get specifiq user logged in 
+    router.get('/login/:id', function(req,res){
+    });
+
+    
+    //route to post valid booking in the home page
+    router.post('/book', function(req,res){
+    });
+    //route to register new user
+    router.post('/register', function(req,res){
+    });
+
+
+    
