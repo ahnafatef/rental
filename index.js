@@ -4,6 +4,10 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
+const cookieParser = require('cookie-parser');
+const compress = require('compression');
+const cors = require('cors');
+const helmet = require('helmet');
 const sharp = require('sharp');
 const uploadsPath = path.join(process.cwd(), 'uploads');
 const upload = multer({dest: uploadsPath});
@@ -19,18 +23,19 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
-// app.use(cookieParser());
-// app.use(compress());
-// // secure apps by setting various HTTP headers
-// app.use(helmet());
-// // enable CORS - Cross Origin Resource Sharing
-// app.use(cors());
+app.use(cookieParser());
+app.use(compress());
+// secure apps by setting various HTTP headers
+app.use(helmet());
+// enable CORS - Cross Origin Resource Sharing
+app.use(cors());
 
 mongoose.connect("mongodb://localhost:27017/rentalapp", {useNewUrlParser:true, useUnifiedTopology: true});
 
 //==========================
 // home start
 app.get('/', function(req, res){
+    console.log(req.url);
     res.render("home");
 });
 //==========================
@@ -71,6 +76,12 @@ app.get('/contact', function(req,res){
 });
 //==========================
 // contact end
+
+
+
+app.post('/register', function(req, res){
+
+});
 
 
 // addcar route start
@@ -154,9 +165,15 @@ app.post('/addcar', upload.single('carimage'), (req, res) => {
 // addcar route end
 //=================================
 
+
+// catch all route start
+//=====================
 app.get('*', function(req, res){
     res.render('404');
 });
+// catch all end
+//=====================
+
 
 // Catch unauthorised errors
 app.use((err, req, res, next) => {
@@ -164,6 +181,7 @@ app.use((err, req, res, next) => {
       res.status(401).json({"error" : err.name + ": " + err.message})
     }
   })
+
 
 app.listen(3000, 'localhost', () => {
     console.log('server started...');
