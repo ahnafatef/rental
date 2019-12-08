@@ -29,6 +29,7 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/uploads"));
 // app.use(cookieParser('secret'));
 app.use(compress());
 // secure apps by setting various HTTP headers
@@ -247,7 +248,15 @@ app.get('/car/:carId', function(req, res){
     })
 })
 
+app.get('/cars', function(req, res){
+    Car.find({}, function(err, cars){
+        if(err) return res.status('400').json({msg: "cars not found"})
 
+        console.log(cars);
+        // return res.status(200).json({cars: cars})
+        return res.render('cars', {cars: cars});
+    })
+})
 
 // catch all route start
 //=====================
