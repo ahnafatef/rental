@@ -28,17 +28,30 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
-app.use(cookieParser());
+app.use(cookieParser('secret'));
 app.use(compress());
 // secure apps by setting various HTTP headers
 app.use(helmet());
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
+
+app.use(require("express-session")({
+    secret: "this is a secret, thank you",
+    resave: false,
+    saveUninitialized: false
+}));
+
 app.use(flash());
 
-
-
 mongoose.connect("mongodb://localhost:27017/rentalapp", {useNewUrlParser:true, useUnifiedTopology: true});
+
+
+app.use(function(req,res,next){
+    res.locals.error = req.flash("error");
+    res.locals.success = req.flash("success");
+    res.locals.path = req.path;
+    next();
+});
 
 app.use('/user', userRoutes);
 app.use('/auth', authRoutes);
@@ -74,6 +87,7 @@ app.get('/signup', function(req,res){
 //==========================
 // login start
 app.get('/login', function(req,res){
+    // console.log(error);
     res.render('login');
 });
 //==========================
@@ -197,12 +211,12 @@ app.use((err, req, res, next) => {
     }
   })
 
-app.use(function(req,res,next){
-    res.locals.error = req.flash("error");
-    res.locals.success = req.flash("success");
-    res.locals.path = req.path;
-    next();
-});
+// app.use(function(req,res,next){
+//     res.locals.error = req.flash("error");
+//     res.locals.success = req.flash("success");
+//     res.locals.path = req.path;
+//     next();
+// });
 
 
 app.listen(3000, 'localhost', () => {

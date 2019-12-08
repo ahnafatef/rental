@@ -2,22 +2,32 @@ const User = require('./../models/user.js');
 const jwt = require('jsonwebtoken');
 const expressJwt = require('express-jwt');
 const config = require('./../config/config.js');
+const flash = require('connect-flash');
 
 const signin = (req, res) => {
   User.findOne({
     "email": req.body.email
   }, (err, user) => {
+    /*     if (err || !user)
+    return res.status('401').json({
+      error: "User not found"
+    }) */
+    
+      if (err || !user){
+        req.flash('error', 'Invalid user');
+        return res.redirect('/login');
+      }
 
-    if (err || !user)
-      return res.status('401').json({
-        error: "User not found"
-      })
-
-    if (!user.authenticate(req.body.password)) {
+/*     if (!user.authenticate(req.body.password)) {
       return res.status('401').send({
         error: "Email and password don't match."
       })
-    }
+    } */
+
+    if (!user.authenticate(req.body.password)) {
+      req.flash('error', 'Email and password don\'t match');
+      return res.redirect('/login');
+    }    
 
     const token = jwt.sign({
       _id: user._id
@@ -27,10 +37,12 @@ const signin = (req, res) => {
       expire: new Date() + 9999
     })
 
-    return res.json({
+/*     return res.json({
       token,
       user: {_id: user._id, name: user.name, email: user.email}
-    })
+    }) */
+    res.flash('success', {token, user});
+    return res.redirect('/userhome', {user: user});
 
   })
 }

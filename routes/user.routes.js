@@ -4,6 +4,7 @@ const authCtrl = require('./../controllers/auth.controller.js');
 
 const router = express.Router()
 
+// /user/
 router.route('/signup')
   .get(userCtrl.list)
   .post(userCtrl.create)

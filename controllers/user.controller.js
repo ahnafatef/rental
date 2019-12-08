@@ -4,7 +4,7 @@ const errorHandler = require("./../helpers/dbErrorHandler");
 
 const create = (req, res, next) => {
     const user = new User(req.body);
-    console.log(user);
+    // console.log(user);
     user.save((err, result) => {
       if (err) {
         return res.status(400).json({

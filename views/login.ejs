@@ -18,6 +18,18 @@
     </section>
     <!--== Page Title Area End ==-->
 
+	<!--== flash message start  ==-->
+
+	<% if (error && error.length > 0) { %>
+		<div class="alert alert-danger alert-dismissable fade show" role="alert">
+			<%= error %>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+	<% } %>
+	<!--== flash message end ==-->
+
     <!--== Login Page Content Start ==-->
     <section id="lgoin-page-wrap" class="section-padding">
         <div class="container">
@@ -28,10 +40,10 @@
                 			<h3>Welcome Back!</h3>
 							<form action="/auth/login" method="POST">
 								<div class="username">
-									<input type="text" placeholder="Email or Username">
+									<input type="text" name="email" placeholder="Email or Username">
 								</div>
 								<div class="password">
-									<input type="password" placeholder="Password">
+									<input type="password" name="password" placeholder="Password">
 								</div>
 								<div class="log-btn">
 									<button type="submit"><i class="fa fa-sign-in"></i> Log In</button>
