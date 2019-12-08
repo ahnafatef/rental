@@ -15,10 +15,11 @@ const signin = (req, res) => {
     
       if (err || !user){
         req.flash('error', 'Invalid user');
+        // console.log('affafsfasdfaf')
         return res.redirect('/login');
       }
 
-/*     if (!user.authenticate(req.body.password)) {
+     /*if (!user.authenticate(req.body.password)) {
       return res.status('401').send({
         error: "Email and password don't match."
       })
@@ -37,12 +38,10 @@ const signin = (req, res) => {
       expire: new Date() + 9999
     })
 
-/*     return res.json({
+    return res.json({
       token,
       user: {_id: user._id, name: user.name, email: user.email}
-    }) */
-    res.flash('success', {token, user});
-    return res.redirect('/userhome', {user: user});
+    })
 
   })
 }
@@ -60,18 +59,34 @@ const requireSignin = expressJwt({
 })
 
 const hasAuthorization = (req, res, next) => {
-  const authorized = req.profile && req.auth && req.profile._id == req.auth._id
+  const authorized = req.profile && req.auth && req.profile._id == req.auth._id;
+
   if (!(authorized)) {
     return res.status('403').json({
       error: "User is not authorized"
     })
   }
-  next()
+
+  if (req.profile.type === 1){
+    // console.log('auth.control line 70');
+    req.flash('success', "Successfully logged in");
+    return res.render('ownerhome', {user: req.profile});
+    // return res.send('hello');
+  }
+
+  if (req.profile.type === 2){
+    console.log('auth.control line 76');
+    req.flash('success', "Successfully logged in");
+    return res.render('renterhome', {user: req.profile});
+  }
+  
+  // console.log('auth.control line 67', req.profile, 'req.auth', req.auth);
+  next();
 }
 
 module.exports = {
-  'signin':signin,
-  'signout':signout,
-  'requireSignin':requireSignin,
-  'hasAuthorization':hasAuthorization
+  'signin': signin,
+  'signout': signout,
+  'requireSignin': requireSignin,
+  'hasAuthorization': hasAuthorization
 }

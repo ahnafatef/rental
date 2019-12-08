@@ -12,8 +12,7 @@ const carSchema = new Schema({
     },
     owner: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: 'must provide owner'
+        ref: "User"
     }],
     availability: {
       type: Boolean,

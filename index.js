@@ -22,39 +22,41 @@ const flash = require("connect-flash");
 const userRoutes = require('./routes/user.routes.js');
 const authRoutes = require('./routes/auth.routes.js');
 const Car = require('./models/car.js');
+const User = require('./models/user.js');
 
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
-app.use(cookieParser('secret'));
+// app.use(cookieParser('secret'));
 app.use(compress());
 // secure apps by setting various HTTP headers
 app.use(helmet());
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
 
-app.use(require("express-session")({
-    secret: "this is a secret, thank you",
-    resave: false,
-    saveUninitialized: false
-}));
+// app.use(require("express-session")({
+//     secret: "this is a secret, thank you",
+//     resave: false,
+//     saveUninitialized: false
+// }));
 
-app.use(flash());
+// app.use(flash());
 
 mongoose.connect("mongodb://localhost:27017/rentalapp", {useNewUrlParser:true, useUnifiedTopology: true});
 
 
-app.use(function(req,res,next){
-    res.locals.error = req.flash("error");
-    res.locals.success = req.flash("success");
-    res.locals.path = req.path;
-    next();
-});
+// app.use(function(req,res,next){
+//     res.locals.error = req.flash("error");
+//     res.locals.success = req.flash("success");
+//     res.locals.path = req.path;
+//     res.locals.user = '';
+//     next();
+// });
 
-app.use('/user', userRoutes);
-app.use('/auth', authRoutes);
+// app.use('/', userRoutes);
+// app.use('/', authRoutes);
 
 
 //==========================
@@ -88,7 +90,7 @@ app.get('/signup', function(req,res){
 // login start
 app.get('/login', function(req,res){
     // console.log(error);
-    res.render('login');
+    res.status('200').render('login');
 });
 //==========================
 // login end
@@ -103,16 +105,46 @@ app.get('/contact', function(req,res){
 // contact end
 
 
+app.get('/user', function(req, res){
+    User.find({}).populate('cars').exec(function(err, users){
+        if(err) return res.status('400').json({msg:'could not get data'})
+        // console.log(users);
+        return res.status('200').json({data: users})
+    })
+})
 
-app.post('/register', function(req, res){
-    
-});
+
+app.post('/user/create', function(req, res){
+    let user = new User(req.body);
+    User.find({'email': user.email}, function(err, users){
+        if(err) return res.status('400').json({msg: 'something wrong'})
+        if(users.length)
+            return res.status('400').json({msg: 'email already being used'});
+        user.save(function(err, user){
+            if(err) return res.status('400').json({msg: 'all fields required'});
+            
+            return res.status('200').json({msg: 'user saved'});
+        })
+    })
+})
+
+
+app.get('/user/:userId/cars', function(req, res){
+    userid = req.params.userId;
+    User.findOne({'_id': userid}).populate('cars').exec(function(err, user){
+        if (err) return res.status('400').json({msg: "error"});
+        
+        console.log(user.cars);
+        return res.status('200').json({data: user.cars})
+    })
+})
+
 
 
 // addcar route start
 //=================================
-app.post('/addcar', upload.single('carimage'), (req, res) => {
-    
+app.post('/user/:userId/addcar', upload.single('carimage'), (req, res) => {
+    let userid = req.params.userId;
     let imgFilePath;
     try {
         imgFilePath = path.join(uploadsPath, req.file.filename);
@@ -136,27 +168,36 @@ app.post('/addcar', upload.single('carimage'), (req, res) => {
                 .toFile(newFilename)
                 .then( data => {
                     let car = new Car(req.body);
-                    let updatedImgFilePath = path.join(uploadsPath, String(car._id));
-                    let imageExt = path.extname(req.file.originalname);
-                    
-                    let newFileName2 = updatedImgFilePath + imageExt;
-                    fs.rename(newFilename, newFileName2, err => {
-                        if (err) console.log(err);
-                        fs.unlink(imgFilePath, (err) => {
+                    car.owner.push(userid);
+                    User.findOne({'_id': userid}, function(err, user){
+                        if(err) return res.status('400').json({msg: "error"});
+
+                        user.cars.push(car._id);
+                        user.save();
+                        let updatedImgFilePath = path.join(uploadsPath, String(car._id));
+                        let imageExt = path.extname(req.file.originalname);
+                        
+                        let newFileName2 = updatedImgFilePath + imageExt;
+                        fs.rename(newFilename, newFileName2, err => {
                             if (err) console.log(err);
+                            fs.unlink(imgFilePath, (err) => {
+                                if (err) console.log(err);
+                            });
+                        });
+                        car.save((err, data) => {
+                            if(err){
+                                return res.status(400).json({msg: 'something wrong'});
+                            } else {
+                                return res.status(200).json({data: data});
+                            }
                         });
                     });
-                    car.save((err, data) => {
-                        if(err){
-                            return res.status(400).json({msg: 'something wrong'});
-                        } else {
-                            return res.status(200).json({msg: 'all good'});
-                        }
-                    });
+
                 }).catch( err => {console.log(err);});
             }
             else {
                 let car = new Car(req.body);
+                car.owner.push(userid)
                 let updatedImgFilePath = path.join(uploadsPath, String(car._id));
                 let imageExt = path.extname(req.file.originalname);
                 
@@ -164,13 +205,20 @@ app.post('/addcar', upload.single('carimage'), (req, res) => {
                 fs.rename(imgFilePath, newFileName2, err => {
                     if (err) console.log(err);
                 });
-                car.save((err, data) => {
-                    if(err){
-                        return res.status(400).json({msg: 'something wrong'});
-                    } else {
-                        return res.status(200).json({msg: 'all good'});
-                    }
-                });
+
+                User.findOne({'_id': userid}, function(err, user){
+                    if(err) return res.status('400').json({msg: "error"})
+                    
+                    user.cars.push(car._id);
+                    user.save();
+                    car.save((err, data) => {
+                        if(err){
+                            return res.status(400).json({msg: 'something wrong'});
+                        } else {
+                            return res.status(200).json({data: data});
+                        }
+                    });
+                })
             }
         });
     }
@@ -189,6 +237,16 @@ app.post('/addcar', upload.single('carimage'), (req, res) => {
 });
 // addcar route end
 //=================================
+
+
+app.get('/car/:carId', function(req, res){
+    Car.findOne({'_id': req.params.carId}, function(err, car){
+        if(err) return res.status('400').json({msg: "car not found"});
+
+        return res.status('200').json({data: car});
+    })
+})
+
 
 
 // catch all route start

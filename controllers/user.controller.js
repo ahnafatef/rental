@@ -22,19 +22,22 @@ const create = (req, res, next) => {
    */
   const userByID = (req, res, next, id) => {
     User.findById(id).exec((err, user) => {
-      if (err || !user)
-        return res.status('400').json({
-          error: "User not found"
-        })
+      if (err || !user){
+        // return res.status('400').json({
+        //   error: "User not found"
+        // })
+        req.user = '';
+      }
       req.profile = user
       next()
     })
   }
   
-  const read = (req, res) => {
+  const read = (req, res, next) => {
     req.profile.hashed_password = undefined
     req.profile.salt = undefined
-    return res.json(req.profile)
+    next()
+    // return res.json(req.profile)
   }
   
   const list = (req, res) => {

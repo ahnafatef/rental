@@ -9,10 +9,20 @@ router.route('/signup')
   .get(userCtrl.list)
   .post(userCtrl.create)
 
+// router.route('/:userId')
+//   .get(authCtrl.requireSignin, authCtrl.hasAuthorization, userCtrl.read)
+//   .put(authCtrl.requireSignin, authCtrl.hasAuthorization, userCtrl.update)
+//   .delete(authCtrl.requireSignin, authCtrl.hasAuthorization, userCtrl.remove)
 router.route('/:userId')
-  .get(authCtrl.requireSignin, userCtrl.read)
+  .get(userCtrl.read, function(req, res){
+    // console.log(req.profile);
+    return res.render('ownerhome', {user: req.profile});
+  })
   .put(authCtrl.requireSignin, authCtrl.hasAuthorization, userCtrl.update)
   .delete(authCtrl.requireSignin, authCtrl.hasAuthorization, userCtrl.remove)
+
+// router.route('/ownerhome')
+//   .get(userCtrl.list)
 
 router.param('userId', userCtrl.userByID)
 
